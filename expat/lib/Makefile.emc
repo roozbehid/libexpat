@@ -1,0 +1,28 @@
+top_srcdir = ..
+
+CC = emcc
+LD = emcc
+
+CFG_VAR = $(CFG)
+ifeq ($(CFG_VAR),)
+CFG_VAR = release
+endif
+
+libexpat_la_SOURCES = \
+    loadlibrary.c \
+    xmlparse.c \
+    xmltok.c \
+    xmlrole.c
+
+HEADERS = $(wildcard *.h)
+OBJS=$(libexpat_la_SOURCES:.c=.o)
+
+BASE_CFLAGS = -DXML_POOR_ENTROPY -I. -I$(top_srcdir)
+GDIPLUS_CFLAGS  = $(BASE_CFLAGS) $(PKG_CFLAGS) $(CFG_CFLAGS) $(CFLAGS)
+
+%.o: %.c 
+	$(CC) -s ERROR_ON_UNDEFINED_SYMBOLS=1 -c $< $(GDIPLUS_CFLAGS) -o "$@" 
+
+$libexpat.bc: $(OBJS)
+	$(CC) $(OBJS) -s ERROR_ON_UNDEFINED_SYMBOLS=1 -o libexpat.bc
+
